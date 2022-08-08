@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#include <errno.h>             // for errno
 #include <linux/audit.h>       // for AUDIT_ARCH_X86_64
 #include <linux/bpf_common.h>  // for BPF_K, BPF_JEQ, BPF_JMP, BPF_ABS, BPF_LD
 #include <linux/filter.h>      // for BPF_STMT, BPF_JUMP, sock_filter, sock_...
@@ -8,6 +7,7 @@
 #include <stdint.h>            // for uint32_t
 #include <stdio.h>             // for perror, puts
 #include <syscall.h>           // for SYS_execve, SYS_execveat, SYS_fork
+#include <unistd.h>
 
 int set_seccomp(uint32_t cookie) {
   int err;
@@ -49,8 +49,6 @@ int set_seccomp(uint32_t cookie) {
       .len = sizeof(filter) / sizeof(filter[0]),
       .filter = filter,
   };
-
-  gid_t groups[1] = {gid};
 
   if (syscall(SYS_seccomp, SECCOMP_SET_MODE_FILTER, 0, &prog) == -1) {
     perror("set_seccomp");

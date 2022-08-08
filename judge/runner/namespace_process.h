@@ -8,6 +8,8 @@
 
 #include "job_desc.h"  // for job_desc, job_result
 
+#define STACK_SIZE (32 * 1024)
+
 struct main_ns_share {
   uint32_t sf_main_ready;
   uint32_t sf_ns_ready;
@@ -26,31 +28,7 @@ struct ns_proc_info {
   struct main_ns_share *shared_addr;
 };
 
-enum user_process_status {
-  UPS_OK = 0,
-  UPS_DUPFD = 1,
-  UPS_CLOFD = 4,
-  UPS_CLOTHERFD = 7,
-  UPS_FAIL = 8,
-  UPS_SECCOMP,
-  UPS_EXECVE
-};
-struct ns_user_share {
-  uid_t uid;
-  gid_t gid;
-  char *program;
-  char **argv;
-  char **envp;
-  int fd[3];
-  bool disable_execve;
-  uint32_t cookie;
-  int status;
-  int errsv;
-  uint32_t sf_user_ready;
-  uint32_t sf_ns_ready;
-};
-
-int clone_namespace_process(uint32_t id, struct ns_proc_info *desc);
-int free_namespace_process(struct ns_proc_info *info);
+int namespace_process_function(struct main_ns_share *arg);
+void namespace_process_dojob(struct main_ns_share *main_share);
 
 #endif

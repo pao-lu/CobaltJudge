@@ -48,6 +48,7 @@ int namespace_process_recv_fd(int fd_socket, int fds[3]) {
     struct cmsghdr align;
   } u;
   struct cmsghdr *cmsg;
+  puts(__func__);
 
   msg.msg_name = NULL;
   msg.msg_namelen = 0;
@@ -61,10 +62,11 @@ int namespace_process_recv_fd(int fd_socket, int fds[3]) {
     perror(__func__);
     return -1;
   }
-  if (size != 1) {
-    fprintf(stderr, "%s: error -2\n", __func__);
-    return -2;
-  }
+  fprintf(stderr, "size=%jd\n", size);
+  /** if (size != 1) { */
+  /**   fprintf(stderr, "%s: error -2\n", __func__); */
+  /**   return -2; */
+  /** } */
   cmsg = CMSG_FIRSTHDR(&msg);
   if (!cmsg) {
     fprintf(stderr, "%s: error -3\n", __func__);
