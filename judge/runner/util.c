@@ -45,43 +45,44 @@ int rmdir_f(const char *dir, ...) {
 int write_number(uintmax_t num, const char *dir, ...) {
   va_list ap;
   char tmp[256];
-  int len;
+  int len, fd, res = 0;
   va_start(ap, dir);
   vsnprintf(tmp, 256, dir, ap);
   va_end(ap);
-  int fd = open(tmp, O_WRONLY | O_CLOEXEC | O_SYNC);
+  fd = open(tmp, O_WRONLY | O_CLOEXEC | O_SYNC);
   if (fd == -1) {
     return -1;
   }
   len = snprintf(tmp, 256, "%ju\n", num);
   if (write(fd, tmp, len) == -1) {
-    return -1;
+    res = -1;
   }
   if (close(fd) == -1) {
-    return -1;
+    res = -1;
   }
 
-  return 0;
+  return res;
 }
 
 int write_string(const char *str, int len, const char *dir, ...) {
   va_list ap;
   char tmp[256];
+  int fd, res = 0;
   va_start(ap, dir);
   vsnprintf(tmp, 256, dir, ap);
   va_end(ap);
-  int fd = open(tmp, O_WRONLY | O_CLOEXEC | O_SYNC);
+  fd = open(tmp, O_WRONLY | O_CLOEXEC | O_SYNC);
   if (fd == -1) {
     return -1;
   }
   if (write(fd, str, len) == -1) {
-    return -1;
+    res = -1;
   }
   if (close(fd) == -1) {
-    return -1;
+    res = -1;
   }
 
-  return 0;
+  return res;
 }
 
 intmax_t read_int(const char *dir, ...) {

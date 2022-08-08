@@ -18,6 +18,7 @@ void print_job_res(const struct job_result *res) {
   } else {
     printf("return_code:\t%d\n", res->return_code);
   }
+  printf("errsv:\t%s\n", strerror(res->errsv));
 }
 
 int job_desc_add(char *buf, int *pointer, const char *str) {
@@ -46,12 +47,10 @@ const char **get_packed_args(const char *buf) {
   }
   size_res = (n + 1) * sizeof(char *);
   addr = (const char **)malloc(size_res);
-  printf("argn = %d\n", n);
   p = 0, n = 0;
   while (p < 1024) {
     addr[n] = buf + p;
     if (buf[p] != '\0') {
-      puts(buf + p);
       for (i = p; i < 1024 && buf[i] != '\0'; i++)
         ;
       if (i < 1024) n++;
@@ -60,8 +59,5 @@ const char **get_packed_args(const char *buf) {
       break;
   }
   addr[n] = 0;
-  for (int i = 0; i < n; i++) {
-    printf("arg[%d] = %s\n", i, addr[i]);
-  }
   return addr;
 }

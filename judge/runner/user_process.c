@@ -1,10 +1,9 @@
 #define _GNU_SOURCE
 #include "user_process.h"
 
-#include <dirent.h>  // for dirent64, opendir, readdir64, DIR
-#include <errno.h>   // for errno, EINTR
-#include <grp.h>     // for setgroups
-#include <malloc.h>
+#include <dirent.h>     // for dirent64, opendir, readdir64, DIR
+#include <errno.h>      // for errno, EINTR
+#include <grp.h>        // for setgroups
 #include <stddef.h>     // for NULL
 #include <stdint.h>     // for uint32_t
 #include <stdio.h>      // for perror
@@ -13,16 +12,14 @@
 #include <syscall.h>    // for SYS_execve
 #include <unistd.h>     // for chdir, close, chroot, dup2, getegid, geteuid
 
+#include "job_desc.h"
 #include "seccomp.h"       // for set_seccomp
 #include "simple_futex.h"  // for sf_post, sf_wait
 
 #define SANDBOX_FS "/sandbox/fs"
 #define SANDBOX_MOUNT "/sandbox-mount"
-#define SANDBOX_CGROUP "/sandbox-cgroup"
 #define SANDBOX_DEV "/sandbox/dev"
 #define STACK_SIZE (32 * 1024)
-#define NOBODY_UID 65534
-#define NOBODY_GID 65534
 
 static int restartable_close(int fd) {
   int errsv = 0;
@@ -50,10 +47,12 @@ static int user_process_close_fd() {
     if (dirent->d_name[0] >= '0' && dirent->d_name[0] <= '9' &&
         (fd = strtol(dirent->d_name, NULL, 10)) > 5) {
       if (restartable_close(fd) != 0) {
+        closedir(dir);
         return -3;
       }
     }
   }
+  closedir(dir);
 
   return 0;
 }
@@ -89,6 +88,7 @@ int user_process_function(void *arg) {
       getgid() != shared_addr->gid || getegid() != shared_addr->gid) {
     PERR_AND_RETURN("deroot failed");
   }
+
   /* 6.2 设置FD */
   for (int i = 0; i < 3; i++) {
     if (dup2(job->fd[i], i) == -1) {
@@ -126,12 +126,10 @@ int user_process_function(void *arg) {
   argv = get_packed_args(job->argv);
   envp = get_packed_args(job->envp);
 
-  puts("syscall");
   /* 执行命令 */
   syscall(SYS_execve, argv[0], argv, envp, shared_addr->cookie);
 
   /* 执行失败 */
-  puts("fail");
   shared_addr->status = UPS_EXECVE;
   shared_addr->errsv = errno;
   free(envp);

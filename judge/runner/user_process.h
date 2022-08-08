@@ -1,11 +1,8 @@
 #ifndef _USER_PROCESS_H_INCLUDED
 #define _USER_PROCESS_H_INCLUDED
 
-#include <stdbool.h>    // for bool
 #include <stdint.h>     // for uint32_t
 #include <sys/types.h>  // for gid_t, uid_t
-
-#include "job_desc.h"
 
 #define USER_STACK_SIZE (32 * 1024)
 

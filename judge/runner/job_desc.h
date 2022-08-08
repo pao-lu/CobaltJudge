@@ -1,7 +1,6 @@
 #ifndef _JOB_DESC_H_INCLUDED
 #define _JOB_DESC_H_INCLUDED
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
 
 struct job_desc {
@@ -20,15 +19,32 @@ struct job_desc {
   uint64_t time_limit, memory_limit, output_limit, pid_limit;
 };
 
+enum init_result {
+  IR_SUCCESS,
+  IR_MOUNT_HOME = 1,
+  IR_MMAP_SHARED,
+  IR_MMAP_STACK,
+  IR_DISABLE_EXECVE,
+  IR_RECEIVE_FD,
+  IR_CGROUP,
+  IR_CLONE,
+  IR_PRLIMIT,
+  IR_ENTER_CGROUP,
+  IR_POLL,
+  IR_RESULT
+
+};
+
 struct job_result {
   int init_result;
   uint64_t time_used, memory_used;
-  bool is_tle, is_mle, is_ole, is_illegal;
+  bool is_tle, is_mle, is_ole, is_illegal, is_idle;
   bool is_killed;
   union {
     int return_code;
     int kill_signal;
   };
+  int errsv;
 };
 
 void print_job_res(const struct job_result *res);
