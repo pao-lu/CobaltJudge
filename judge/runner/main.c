@@ -6,7 +6,7 @@
  * | |工作线程|        |        | |
  * | |        |        |        | |
  * +-+--+--^--+--------+--------+-+
- *      |  |
+ *      |  |  UNIX socket pair
  * +----v--+----+  uid=0 gid=0 CLONE_FILES
  * |命名空间进程|  cgroup_ns ipc_ns net_ns mount_ns
  * +----+-------+  pid_ns user_ns uts_ns
